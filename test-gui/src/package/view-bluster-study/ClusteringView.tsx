@@ -94,7 +94,7 @@ const ClusteringView: FunctionComponent<Props> = ({title, datapoints, accuracy, 
 	const handleClick = useCallback((p: {x: number, y: number}, e: React.MouseEvent<Element, MouseEvent>) => {
 		setSelectedDatapointIndices([])
 	}, [setSelectedDatapointIndices])
-	const {affineTransform, handleWheel} = useWheelZoom(0, 0, W, H, {shiftKey: false})
+	const {affineTransform, handleWheel} = useWheelZoom(0, 0, W, H, {shiftKey: true})
 	return (
 		<div>
 			<div style={{position: 'absolute', left: outerMargin, top: outerMargin, width: W, height: titleHeight, textAlign: 'center'}}>{title}{accuracy !== undefined ? ` (${formatAccuracy(accuracy)})` : ``}</div>
