@@ -16,15 +16,13 @@ export type BlusterStudy = {
 	name: string
 	description: string
 	datasets: BlusterDataset[]
-	clusterings: BlusterStudyClustering[]
 }
 
 export const isBlusterStudy = (x: any): x is BlusterStudy => {
     return validateObject(x, {
         name: isString,
         description: isString,
-        datasets: isArrayOf(isBlusterDataset),
-        clusterings: isArrayOf(isBlusterStudyClustering)
+        datasets: isArrayOf(isBlusterDataset)
     })
 }
 
@@ -36,6 +34,7 @@ export type BlusterDataset = {
 	numDatapoints: number // N
 	datapoints: number[][] // N x D
 	labels: number[] // N
+    clusterings: BlusterClustering[]
 }
 
 export const isBlusterDataset = (x: any): x is BlusterDataset => {
@@ -46,45 +45,26 @@ export const isBlusterDataset = (x: any): x is BlusterDataset => {
         numDimensions: isNumber,
         numDatapoints: isNumber,
         datapoints: () => (true),
-        labels: () => (true)
+        labels: () => (true),
+        clusterings: isArrayOf(isBlusterClustering)
     })
 }
 
-export type BlusterStudyClustering = {
-	method: BlusterClusteringMethod
-	datasetClusterings: (BlusterDatasetClustering | undefined)[]
-}
-
-export const isBlusterStudyClustering = (x: any): x is BlusterStudyClustering => {
-    return validateObject(x, {
-        method: isBlusterClusteringMethod,
-        datasetClusterings: isArrayOf(optional(isBlusterDatasetClustering))
-    })
-}
-
-export type BlusterClusteringMethod = {
+export type BlusterClustering = {
 	name: string
-	algorithmName: string
-	parameters: {[pname: string]: any}
+    classname: string
+    parameters: {[pname: string]: any}
+    labels: number[]
+    synchronizedLabels?: number[] // internally computed
+    clusterAccuracies?: {[k: number]: number} // internally computed
+    averageClusterAccuracy?: number // internally computed
 }
 
-export const isBlusterClusteringMethod = (x: any): x is BlusterClusteringMethod => {
+export const isBlusterClustering = (x: any): x is BlusterClustering => {
     return validateObject(x, {
         name: isString,
-        algorithmName: isString,
-        parameters: () => (true)
-    })
-}
-
-export type BlusterDatasetClustering = {
-	labels: number[] // N
-    synchronizedLabels?: number[] // internally computed
-    clusterAccuracies?: {[k: number]: number}
-    averageClusterAccuracy?: number
-}
-
-export const isBlusterDatasetClustering = (x: any): x is BlusterDatasetClustering => {
-    return validateObject(x, {
+        classname: isString,
+        parameters: () => (true),
         labels: () => (true),
         synchronizedLabels: optional(() => (true)),
         clusterAccuracies: optional(() => (true)),

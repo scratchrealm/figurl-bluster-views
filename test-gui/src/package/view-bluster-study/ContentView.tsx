@@ -1,8 +1,7 @@
-import { Splitter } from "@figurl/core-views";
 import { FunctionComponent } from "react";
 import { useBlusterSelection } from "../context-bluster-selection";
-import ClusteringBoxesView from "./ClusteringBoxesView";
 import ClusteringView from "./ClusteringView";
+import ClusteringViewsLayout from "./ClusteringViewsLayout";
 
 type Props ={
 	width: number
@@ -10,31 +9,39 @@ type Props ={
 }
 
 const ContentView: FunctionComponent<Props> = ({width, height}) => {
-	const {currentDataset} = useBlusterSelection()
+	const {currentDataset, selectedClusteringAlgorithms} = useBlusterSelection()
 
 	if (!currentDataset) {
 		return <span>No dataset selected</span>
 	}
 	return (
 		<div style={{position: 'absolute', width, height}}>
-			<Splitter
+			<ClusteringViewsLayout
 				width={width}
 				height={height}
-				direction="vertical"
-				initialPosition={height / 2}
 			>
 				<ClusteringView
+					key="_truth"
 					title="Truth"
 					datapoints={currentDataset.datapoints}
 					labels={currentDataset.labels}
 					width={0}
 					height={0}
 				/>
-				<ClusteringBoxesView
-					width={0}
-					height={0}
-				/>
-			</Splitter>
+				{
+					currentDataset.clusterings.filter(c => (selectedClusteringAlgorithms ? selectedClusteringAlgorithms.includes(c.name) : true)).map((c, i) => (
+						<ClusteringView
+							key={c.name}
+							title={c.name}
+							datapoints={currentDataset.datapoints}
+							labels={c.synchronizedLabels}
+							accuracy={c.averageClusterAccuracy}
+							width={0}
+							height={0}
+						/>
+					))
+				}
+			</ClusteringViewsLayout>
 		</div>
 	)
 }

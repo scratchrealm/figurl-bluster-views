@@ -16,20 +16,18 @@ const BlusterStudyView: FunctionComponent<Props> = ({data, width, height}) => {
 
 	useEffect(() => {
 		// synchronize the labels
-		study.clusterings.forEach((cc) => {
-			cc.datasetClusterings.forEach((x, ii) => {
-				if (x) {
-					x.synchronizedLabels = computeSynchronizedLabels(study.datasets[ii].labels, x.labels)
-					x.clusterAccuracies = computeClusterAccuracies(study.datasets[ii].labels, x.labels)
-					x.averageClusterAccuracy = computeMean(Object.values(x.clusterAccuracies || {}))
-				}
+		study.datasets.forEach((dd) => {
+			dd.clusterings.forEach((cc, ii) => {
+				cc.synchronizedLabels = computeSynchronizedLabels(dd.labels, cc.labels)
+				cc.clusterAccuracies = computeClusterAccuracies(dd.labels, cc.labels)
+				cc.averageClusterAccuracy = computeMean(Object.values(cc.clusterAccuracies || {}))
 			})
 		}, [])
 	}, [study])
 	
 	return (
 		<SetupBlusterSelection blusterStudy={study}>
-			<div>
+			<div className="BlusterStudyView">
 				<Splitter
 					width={width}
 					height={height}

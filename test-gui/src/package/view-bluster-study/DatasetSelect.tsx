@@ -1,29 +1,32 @@
-import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
+import { FormControl, InputLabel, MenuItem, Select, Slider } from "@material-ui/core";
 import { FunctionComponent, useCallback } from "react";
 import { useBlusterSelection } from "../context-bluster-selection";
 
 type Props ={
-	selectedDatasetIndex?: number
-	setSelectedDatasetIndex: (i?: number) => void
+	width: number
 }
 
-const DatasetSelect: FunctionComponent<Props> = ({selectedDatasetIndex, setSelectedDatasetIndex}) => {
+const DatasetSelect: FunctionComponent<Props> = ({width}) => {
+	const {currentDatasetIndex, setCurrentDatasetIndex} = useBlusterSelection()
 	const {blusterStudy} = useBlusterSelection()
 	const datasets = blusterStudy?.datasets
 	const handleChange = (event: any) => {
-		setSelectedDatasetIndex(event.target.value ? parseInt(event.target.value) : undefined);
+		setCurrentDatasetIndex(event.target.value ? parseInt(event.target.value) : undefined);
 	}
 	const handleNext = useCallback(() => {
-		if (selectedDatasetIndex === undefined) return
+		if (currentDatasetIndex === undefined) return
 		if (!blusterStudy) return
-		if (selectedDatasetIndex >= blusterStudy.datasets.length - 1) return
-		setSelectedDatasetIndex(selectedDatasetIndex + 1)
-	}, [selectedDatasetIndex, setSelectedDatasetIndex, blusterStudy])
+		if (currentDatasetIndex >= blusterStudy.datasets.length - 1) return
+		setCurrentDatasetIndex(currentDatasetIndex + 1)
+	}, [currentDatasetIndex, setCurrentDatasetIndex, blusterStudy])
 	const handlePrev = useCallback(() => {
-		if (selectedDatasetIndex === undefined) return
-		if (selectedDatasetIndex <= 0) return
-		setSelectedDatasetIndex(selectedDatasetIndex - 1)
-	}, [selectedDatasetIndex, setSelectedDatasetIndex])
+		if (currentDatasetIndex === undefined) return
+		if (currentDatasetIndex <= 0) return
+		setCurrentDatasetIndex(currentDatasetIndex - 1)
+	}, [currentDatasetIndex, setCurrentDatasetIndex])
+	const handleSliderChange = useCallback((event: any, newValue: number | number[]) => {
+		setCurrentDatasetIndex(newValue as number)
+	}, [setCurrentDatasetIndex])
 	return (
 		<div>
 			<FormControl fullWidth>
@@ -31,20 +34,25 @@ const DatasetSelect: FunctionComponent<Props> = ({selectedDatasetIndex, setSelec
 				<Select
 					labelId="dataset-select-label"
 					id="dataset-select"
-					value={selectedDatasetIndex !== undefined ? `${selectedDatasetIndex}` : ''}
+					value={currentDatasetIndex !== undefined ? `${currentDatasetIndex}` : ''}
 					label="Dataset"
 					onChange={handleChange}
 				>
 					{
 						(datasets || []).map((ds, ii) => (
-							<MenuItem value={ii}>{ds.name}</MenuItem>
+							<MenuItem key={ds.name} value={ii}>{ds.name}</MenuItem>
 						))
 					}
 				</Select>
 			</FormControl>
-			<button onClick={handlePrev}>{`< prev`}</button>
+			<div style={{position: 'relative', left: 10, width: width - 20}}>
+				<Slider min={0} max={(datasets?.length || 0) - 1} value={currentDatasetIndex || 0} onChange={handleSliderChange} />
+			</div>
+			<div>
+			<button onClick={handlePrev}>{`<`}</button>
 			&nbsp;
-			<button onClick={handleNext}>{`next >`}</button>
+			<button onClick={handleNext}>{`>`}</button>
+			</div>
 		</div>
 	)
 }

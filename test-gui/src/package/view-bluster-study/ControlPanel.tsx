@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react";
-import { useBlusterSelection } from "../context-bluster-selection";
 import { BlusterStudy } from "./BlusterStudyViewData";
+import ClusteringAlgorithmsSelectionControl from "./ClusteringAlgorithmsSelectionControl";
 import DatasetSelect from "./DatasetSelect";
 
 type Props ={
@@ -10,13 +10,11 @@ type Props ={
 }
 
 const ControlPanel: FunctionComponent<Props> = ({width, height}) => {
-	const {currentDatasetIndex, setCurrentDatasetIndex} = useBlusterSelection()
 	return (
 		<div style={{position: 'absolute', width: width - 20, height: height - 20, top: 10, left: 10, overflowY: 'auto', overflowX: 'hidden'}}>
-			<DatasetSelect
-				selectedDatasetIndex={currentDatasetIndex}
-				setSelectedDatasetIndex={setCurrentDatasetIndex}
-			/>
+			<DatasetSelect width={width - 20} />
+			&nbsp;
+			<ClusteringAlgorithmsSelectionControl />
 		</div>
 	)
 }

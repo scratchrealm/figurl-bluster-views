@@ -16,10 +16,13 @@ type Props ={
 const ClusteringView: FunctionComponent<Props> = ({title, datapoints, accuracy, labels, width, height}) => {
 	const xValues = useMemo(() => (datapoints.map(p => (p[0]))), [datapoints])
 	const yValues = useMemo(() => (datapoints.map(p => (p[1]))), [datapoints])
-	const margin = 25
-	const titleHeight = 30
-	const W = width - margin * 2
-	const H = height - margin * 2 - titleHeight
+	const outerMargin = 20
+	const innerMargin = 20
+	const titleHeight = 20
+	const W = width - outerMargin * 2
+	const H = height - outerMargin * 2 - titleHeight
+	const W2 = W - innerMargin * 2
+	const H2 = H - innerMargin * 2
 	const {selectedDatapointIndices, setSelectedDatapointIndices} = useBlusterSelection()
 	const {xMin, xMax, yMin, yMax} = useMemo(() => {
 		let xMin = Math.min(...xValues)
@@ -28,20 +31,20 @@ const ClusteringView: FunctionComponent<Props> = ({title, datapoints, accuracy, 
 		let yMax = Math.max(...yValues)
 		const xSpan = xMax - xMin
 		const ySpan = yMax - yMin
-		if (xSpan * H > ySpan * W) {
-			yMin -= (xSpan * H / W - ySpan) / 2
-			yMax += (xSpan * H / W - ySpan) / 2
+		if (xSpan * H2 > ySpan * W2) {
+			yMin -= (xSpan * H2 / W2 - ySpan) / 2
+			yMax += (xSpan * H2 / W2 - ySpan) / 2
 		}
 		else {
-			xMin -= (ySpan * W / H - xSpan) / 2
-			xMax += (ySpan * W / H - xSpan) / 2
+			xMin -= (ySpan * W2 / H2 - xSpan) / 2
+			xMax += (ySpan * W2 / H2 - xSpan) / 2
 		}
 		return {xMin, xMax, yMin, yMax}
-	}, [xValues, yValues, W, H])
+	}, [xValues, yValues, W2, H2])
 	const coordToPixel = useCallback((coord: {x: number, y: number}) => ({
-		x: margin + (coord.x - xMin) / (xMax - xMin) * W,
-		y: margin + (1 - (coord.y - yMin) / (yMax - yMin)) * H
-	}), [xMin, xMax, yMin, yMax, W, H])
+		x: innerMargin + (coord.x - xMin) / (xMax - xMin) * W2,
+		y: innerMargin + (1 - (coord.y - yMin) / (yMax - yMin)) * H2
+	}), [xMin, xMax, yMin, yMax, W2, H2])
 	const objects = useMemo(() => {
 		const selectedDatapointIndicesSet = new Set(selectedDatapointIndices)
 		const objects: Scene2dObject[] = []
@@ -91,14 +94,14 @@ const ClusteringView: FunctionComponent<Props> = ({title, datapoints, accuracy, 
 	const handleClick = useCallback((p: {x: number, y: number}, e: React.MouseEvent<Element, MouseEvent>) => {
 		setSelectedDatapointIndices([])
 	}, [setSelectedDatapointIndices])
-	const {affineTransform, handleWheel} = useWheelZoom(0, 0, width, height - titleHeight, {shiftKey: false})
+	const {affineTransform, handleWheel} = useWheelZoom(0, 0, W, H, {shiftKey: false})
 	return (
 		<div>
-			<div style={{textAlign: 'center'}}>{title}{accuracy !== undefined ? ` (${formatAccuracy(accuracy)})` : ``}</div>
-			<div style={{position: 'absolute', top: titleHeight, width, height: height - titleHeight}} onWheel={handleWheel}>
+			<div style={{position: 'absolute', left: outerMargin, top: outerMargin, width: W, height: titleHeight, textAlign: 'center'}}>{title}{accuracy !== undefined ? ` (${formatAccuracy(accuracy)})` : ``}</div>
+			<div style={{position: 'absolute', left: outerMargin, top: outerMargin + titleHeight, width: W, height: H, border: 'solid 1px lightgray'}} onWheel={handleWheel}>
 				<Scene2d
-					width={width}
-					height={height}
+					width={W}
+					height={H}
 					objects={objects}
 					onSelectObjects={handleSelectObjects}
 					onClickObject={handleClickObject}
